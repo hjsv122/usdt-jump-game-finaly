@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>USDT Jump Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    #game {
+      margin-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+    #profit {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    #withdrawSection {
+      margin-top: 30px;
+      display: none;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🪙 USDT Jump Game</h1>
+
+  <label>🎮 أدخل عنوان محفظتك:</label><br/>
+  <input type="text" id="wallet" placeholder="TKmjAd6z7pAZpv2tQfie1Zt7ihX1XhZBTS"/><br/><br/>
+
+  <div id="game">
+    <button onclick="jump()">اقفز واربح!</button>
+  </div>
+
+  <div id="profit">أرباحك: $0</div>
+
+  <div id="withdrawSection">
+    <h3>🤑 يمكنك سحب أرباحك الآن!</h3>
+    <button onclick="withdraw()">سحب الأرباح</button>
+  </div>
+
+  <script>
+    let profit = 0;
+
+    async function jump() {
+      const wallet = document.getElementById("wallet").value.trim();
+      if (!wallet) return alert("يرجى إدخال عنوان المحفظة");
+
+      const amount = Math.floor(Math.random() * 10) + 1;
+      profit += amount;
+      document.getElementById("profit").innerText = `أرباحك: $${profit}`;
+
+      await fetch("/add-profit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet, amount }),
+      });
+
+      if (profit >= 250) {
+        document.getElementById("withdrawSection").style.display = "block";
+      }
+    }
+
+    async function withdraw() {
+      const wallet = document.getElementById("wallet").value.trim();
+      if (!wallet) return alert("يرجى إدخال عنوان المحفظة");
+
+      const response = await fetch("/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet }),
+      });
+
+      const data = await response.json();
+      alert(data.message || "تم السحب بنجاح!");
+    }
+  </script>
+</body>
+</html>
